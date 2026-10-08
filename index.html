@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>哆啦A夢：記憶麵包小數分數對對碰 (iPad觸控特別版)</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --dora-blue: #00A0E9;
+            --dora-dark-blue: #0080C6;
+            --dora-red: #E60012;
+            --dora-yellow: #FFDF00;
+            --dora-bread-crust: #B87333;
+            --dora-bread-bg: #FFFDF0;
+            --dora-bread-toast: #7A3B00;
+        }
+
+        /* iPad and Touchscreen Global Reset */
+        html, body {
+            height: 100%;
+            width: 100%;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+            background: radial-gradient(circle at top center, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* Memory Bread 3D Touch Card CSS */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.16), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Card Front (Doraemon Bell Cover) */
+        .card-front {
+            background: linear-gradient(135deg, var(--dora-blue) 0%, var(--dora-dark-blue) 100%);
+            border: 4px solid #ffffff;
+            color: white;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(255,255,255,0.35) 0%, transparent 60%),
+                radial-gradient(rgba(255, 255, 255, 0.15) 2px, transparent 2px);
+            background-size: 100% 100%, 16px 16px;
+        }
+
+        /* Card Back (Toasted Memory Bread) */
+        .card-back {
+            background: linear-gradient(180deg, #FFFDF5 0%, #FDF0D0 100%);
+            transform: rotateY(180deg);
+            border: 6px solid var(--dora-bread-crust);
+            box-shadow: inset 0 0 16px rgba(184, 115, 51, 0.25), 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .card-back::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            height: 22px;
+            background: var(--dora-bread-crust);
+            border-radius: 16px 16px 0 0;
+            opacity: 0.25;
+        }
+
+        .card.matched .card-back {
+            border-color: #10b981;
+            background: #ecfdf5;
+            animation: breadPulse 1.2s infinite alternate ease-in-out;
+        }
+
+        .card.hint-glow .card-front {
+            animation: gadgetGlow 0.8s infinite alternate ease-in-out;
+            border-color: var(--dora-yellow);
+        }
+
+        @keyframes breadPulse {
+            0% { box-shadow: 0 0 8px #10b981; transform: scale(1); }
+            100% { box-shadow: 0 0 24px #059669; transform: scale(1.03); }
+        }
+
+        @keyframes gadgetGlow {
+            0% { box-shadow: 0 0 6px var(--dora-yellow); }
+            100% { box-shadow: 0 0 28px #f59e0b; transform: scale(1.04); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px) rotate(-3deg); }
+            40%, 80% { transform: translateX(8px) rotate(3deg); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Toasted Mathematical Text */
+        .toasted-text {
+            color: var(--dora-bread-toast);
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.9), -1px -1px 0px rgba(122, 59, 0, 0.2);
+            font-weight: 900;
+        }
+
+        /* Math Fraction Component */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 6px;
+        }
+        .fraction .numerator {
+            border-bottom: 3px solid currentColor;
+            padding-bottom: 2px;
+            line-height: 1;
+        }
+        .fraction .denominator {
+            padding-top: 2px;
+            line-height: 1;
+        }
+
+        /* iPad Large Touch Buttons */
+        .ipad-btn {
+            min-height: 54px;
+            min-width: 54px;
+            touch-action: manipulation;
+        }
+        .ipad-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0f2fe;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-full text-slate-800 overflow-hidden">
+
+    <!-- iPad Header Navigation -->
+    <header class="bg-[#00A0E9] text-white shadow-lg sticky top-0 z-30 border-b-4 border-[#E60012] flex-shrink-0">
+        <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between">
+            
+            <!-- Avatar & Game Title -->
+            <div class="flex items-center space-x-3">
+                <div class="relative w-12 h-12 bg-white rounded-full border-2 border-slate-900 flex items-center justify-center shadow-md flex-shrink-0">
+                    <div class="w-10 h-10 bg-[#00A0E9] rounded-full relative overflow-hidden flex items-center justify-center">
+                        <div class="w-8 h-7 bg-white rounded-t-full absolute bottom-0"></div>
+                        <div class="w-3 h-3 bg-[#E60012] rounded-full absolute top-2.5"></div>
+                        <div class="absolute left-0 top-4 w-2.5 h-0.5 bg-slate-900"></div>
+                        <div class="absolute right-0 top-4 w-2.5 h-0.5 bg-slate-900"></div>
+                    </div>
+                    <div class="absolute -bottom-1 w-5 h-5 bg-[#FFDF00] border border-slate-900 rounded-full flex items-center justify-center shadow-sm">
+                        <div class="w-1.5 h-1.5 bg-amber-900 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h1 class="text-base sm:text-xl md:text-2xl font-black tracking-wide text-white drop-shadow">
+                        哆啦A夢：記憶麵包對對碰
+                    </h1>
+                    <p class="text-[11px] sm:text-xs font-bold text-amber-200">iPad 觸控特別版．小數與分數互化</p>
+                </div>
+            </div>
+
+            <!-- Top Header Action Controls -->
+            <div class="flex items-center space-x-2">
+                <!-- Read Aloud / Speech Toggle -->
+                <button id="speechToggleBtn" onclick="toggleSpeech()" class="ipad-btn px-3 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs sm:text-sm flex items-center space-x-1.5 border border-white/30">
+                    <i id="speechIcon" class="fa-solid fa-comment-dots text-amber-200"></i>
+                    <span id="speechStatusText" class="hidden sm:inline">語音朗讀: 開</span>
+                </button>
+
+                <!-- Knowledge Base Button -->
+                <button onclick="openKnowledgeModal()" class="ipad-btn px-3.5 bg-[#FFDF00] hover:bg-amber-300 text-slate-900 font-extrabold text-xs sm:text-sm rounded-2xl shadow-md flex items-center space-x-1.5 border border-amber-500">
+                    <i class="fa-solid fa-book-bookmark text-rose-600"></i>
+                    <span>祕訣庫</span>
+                </button>
+
+                <!-- Audio FX Toggle -->
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="ipad-btn px-3 rounded-2xl bg-white/20 hover:bg-white/30 text-white transition-colors border border-white/30 flex items-center justify-center">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-base"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Doraemon Red Collar Bar -->
+        <div class="h-2.5 bg-[#E60012] w-full relative">
+            <div class="absolute left-1/2 -translate-x-1/2 -top-2 w-7 h-7 bg-[#FFDF00] border-2 border-slate-900 rounded-full flex items-center justify-center shadow">
+                <div class="w-2.5 h-0.5 bg-slate-900"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Container -->
+    <main class="max-w-5xl mx-auto px-4 py-3 flex-1 flex flex-col items-center w-full overflow-y-auto">
+
+        <!-- Doraemon Character Dialogue Bubble -->
+        <div class="w-full bg-white/95 rounded-2xl p-3 shadow-md border-2 border-[#00A0E9] flex items-center space-x-3 mb-3 relative flex-shrink-0">
+            <div id="characterAvatar" class="w-11 h-11 rounded-full bg-[#00A0E9] text-white font-black flex items-center justify-center text-2xl flex-shrink-0 shadow border border-sky-300">
+                🤖
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2 mb-0.5">
+                    <span id="characterName" class="text-xs font-black text-[#00A0E9]">哆啦A夢</span>
+                    <span class="text-[10px] bg-sky-100 text-sky-800 px-1.5 py-0.2 rounded font-bold">即時特訓</span>
+                </div>
+                <p id="doraTalk" class="text-xs sm:text-sm font-black text-slate-700 truncate">
+                    「大雄加油！用手指輕觸翻開記憶麵包，把小數和分數湊成一對吧！」
+                </p>
+            </div>
+            <!-- Combo Badge -->
+            <div id="comboBadge" class="hidden px-3 py-1 bg-gradient-to-r from-amber-400 to-rose-500 text-white font-black rounded-full text-xs shadow-lg animate-bounce flex-shrink-0">
+                COMBO x<span id="comboCount">1</span>!
+            </div>
+        </div>
+
+        <!-- Doraemon Secret Gadget Toolbar (4次元神奇道具) -->
+        <div class="w-full bg-white/90 backdrop-blur rounded-2xl p-2.5 shadow-md border border-sky-200 mb-3 flex-shrink-0">
+            <div class="text-xs font-black text-sky-800 mb-1.5 flex items-center justify-between px-1">
+                <span class="flex items-center"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1.5"></i> 四次元神奇道具 (點擊觸發)：</span>
+                <span class="text-[10px] text-slate-500 font-bold">iPad 觸控優化</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+                <!-- Gadget 1: Memory Bread Peek -->
+                <button id="gadgetPeekBtn" onclick="useGadgetPeek()" class="ipad-btn p-2 rounded-2xl bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm group">
+                    <span class="text-xl group-hover:scale-110 transition-transform">🍞</span>
+                    <span class="font-extrabold text-[11px] text-amber-900 mt-0.5">記憶麵包</span>
+                    <span id="peekCountTag" class="text-[10px] bg-amber-200 text-amber-900 px-1.5 rounded-full font-black">2 次</span>
+                </button>
+
+                <!-- Gadget 2: Anywhere Door Shuffle -->
+                <button id="gadgetShuffleBtn" onclick="useGadgetShuffle()" class="ipad-btn p-2 rounded-2xl bg-rose-50 hover:bg-rose-100 border-2 border-rose-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm group">
+                    <span class="text-xl group-hover:scale-110 transition-transform">🚪</span>
+                    <span class="font-extrabold text-[11px] text-rose-900 mt-0.5">任意門洗牌</span>
+                    <span id="shuffleCountTag" class="text-[10px] bg-rose-200 text-rose-900 px-1.5 rounded-full font-black">1 次</span>
+                </button>
+
+                <!-- Gadget 3: Take-copter Time Boost -->
+                <button id="gadgetTimeBtn" onclick="useGadgetTime()" class="ipad-btn p-2 rounded-2xl bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm group">
+                    <span class="text-xl group-hover:scale-110 transition-transform">🚁</span>
+                    <span class="font-extrabold text-[11px] text-sky-900 mt-0.5">竹蜻蜓減時</span>
+                    <span id="timeCountTag" class="text-[10px] bg-sky-200 text-sky-900 px-1.5 rounded-full font-black">-15秒</span>
+                </button>
+
+                <!-- Gadget 4: Translation Gummy -->
+                <button onclick="readAloudCurrentTip()" class="ipad-btn p-2 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm group">
+                    <span class="text-xl group-hover:scale-110 transition-transform">🍬</span>
+                    <span class="font-extrabold text-[11px] text-emerald-900 mt-0.5">翻譯魔蒟蒻</span>
+                    <span class="text-[10px] bg-emerald-200 text-emerald-900 px-1.5 rounded-full font-black">朗讀題目</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard & Mode Switcher -->
+        <div class="w-full bg-white rounded-2xl p-3 shadow-md border border-sky-100 mb-3 flex flex-wrap gap-2.5 items-center justify-between flex-shrink-0">
+            <!-- Difficulty Mode Buttons -->
+            <div class="flex bg-slate-100 p-1 rounded-2xl">
+                <button id="diffEasy" onclick="setDifficulty('easy')" class="ipad-btn px-3 py-1.5 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm">
+                    基礎 (4對)
+                </button>
+                <button id="diffMedium" onclick="setDifficulty('medium')" class="ipad-btn px-3 py-1.5 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900">
+                    標準 (6對)
+                </button>
+                <button id="diffHard" onclick="setDifficulty('hard')" class="ipad-btn px-3 py-1.5 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900">
+                    挑戰 (8對)
+                </button>
+            </div>
+
+            <!-- Realtime Metrics -->
+            <div class="flex items-center space-x-4 text-xs sm:text-sm font-black">
+                <div class="flex items-center text-sky-700">
+                    <i class="fa-regular fa-clock mr-1 text-sky-500"></i>
+                    <span id="timerText">00:00</span>
+                </div>
+                <div class="flex items-center text-indigo-700">
+                    <i class="fa-solid fa-hand-pointer mr-1 text-indigo-500"></i>
+                    <span id="movesText">0</span> 次
+                </div>
+                <div class="flex items-center text-emerald-700">
+                    <i class="fa-solid fa-cubes mr-1 text-emerald-500"></i>
+                    <span id="scoreText">0 / 4</span>
+                </div>
+            </div>
+
+            <!-- Restart Button -->
+            <button onclick="initGame()" class="ipad-btn px-4 py-2 bg-[#E60012] hover:bg-red-600 text-white font-extrabold rounded-2xl text-xs shadow transition-all flex items-center space-x-1">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>重新開始</span>
+            </button>
+        </div>
+
+        <!-- Interactive Memory Bread Card Grid -->
+        <div id="cardGrid" class="w-full grid gap-3 justify-center my-auto transition-all duration-300">
+            <!-- Dynamic Memory Bread Cards -->
+        </div>
+
+        <!-- Mismatch Analysis Alert Banner -->
+        <div id="mismatchBanner" class="w-full mt-3 bg-rose-50 border-2 border-rose-300 rounded-2xl p-3 hidden transition-all shadow-md flex-shrink-0">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-black text-rose-800 text-xs sm:text-sm">配對不成立！對照分析：</h4>
+                        <button onclick="closeMismatchBanner()" class="text-xs font-bold text-rose-400 hover:text-rose-700 px-2 py-1">關閉</button>
+                    </div>
+                    <div id="mismatchDetails" class="grid sm:grid-cols-2 gap-2 mt-1.5 text-xs text-slate-700">
+                        <!-- Dynamic error details -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Step-by-step Solution Modal -->
+    <div id="solutionModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border-4 border-[#00A0E9] relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🍬</span>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-slate-800">翻譯魔蒟蒻：雙向計算推導</h3>
+                        <p class="text-xs font-bold text-sky-600">完美記憶麵包配對成功！</p>
+                    </div>
+                </div>
+                <button onclick="closeSolutionModal()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-base font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Matched Value Showcase -->
+            <div class="my-4 bg-amber-50 rounded-2xl p-3 border-2 border-amber-300 flex items-center justify-around shadow-inner">
+                <div class="text-center">
+                    <div class="text-xs font-bold text-amber-800">小數卡</div>
+                    <div id="modalDecimalVal" class="text-2xl font-black text-slate-800 mt-1 toasted-text">0.75</div>
+                </div>
+                <div class="text-2xl font-black text-amber-500">=</div>
+                <div class="text-center">
+                    <div class="text-xs font-bold text-amber-800">分數卡</div>
+                    <div id="modalFractionVal" class="text-xl font-black text-slate-800 mt-1 toasted-text">
+                        <!-- Fraction injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Explanations -->
+            <div class="space-y-3 text-xs sm:text-sm">
+                <!-- Step 1: Decimal to Fraction -->
+                <div class="bg-sky-50 rounded-2xl p-3.5 border border-sky-200">
+                    <h4 class="font-black text-sky-900 flex items-center text-xs sm:text-sm mb-1.5">
+                        <span class="w-5 h-5 rounded-full bg-[#00A0E9] text-white flex items-center justify-center text-[10px] mr-1.5">1</span>
+                        【小數 轉 分數】聲音位值口訣
+                    </h4>
+                    <ul id="stepDecToFrac" class="space-y-1.5 text-slate-700 font-medium pl-1">
+                        <!-- Injected -->
+                    </ul>
+                </div>
+
+                <!-- Step 2: Fraction to Decimal -->
+                <div class="bg-amber-50 rounded-2xl p-3.5 border border-amber-200">
+                    <h4 class="font-black text-amber-900 flex items-center text-xs sm:text-sm mb-1.5">
+                        <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] mr-1.5">2</span>
+                        【分數 轉 小數】湊十好朋友擴分法
+                    </h4>
+                    <ul id="stepFracToDec" class="space-y-1.5 text-slate-700 font-medium pl-1">
+                        <!-- Injected -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Voice Read Button -->
+            <button onclick="speakSolutionModalContent()" class="w-full my-3 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow flex items-center justify-center space-x-2 text-xs sm:text-sm">
+                <i class="fa-solid fa-volume-high"></i>
+                <span>語音朗讀推導過程</span>
+            </button>
+
+            <button onclick="closeSolutionModal()" class="w-full py-3 bg-[#00A0E9] hover:bg-sky-600 text-white font-extrabold rounded-2xl shadow transition-all text-sm">
+                記住惹！繼續挑戰下一組 🍞
+            </button>
+        </div>
+    </div>
+
+    <!-- Knowledge Base Cheat-Sheet Modal -->
+    <div id="knowledgeModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-5 shadow-2xl border-4 border-[#FFDF00] relative max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🤖</span>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-slate-800">哆啦A夢的解題秘訣庫</h3>
+                        <p class="text-xs font-bold text-amber-600">掌握「湊十好朋友」，小數分數秒破解！</p>
+                    </div>
+                </div>
+                <button onclick="closeKnowledgeModal()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-base font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-100 mt-3 flex-shrink-0">
+                <button id="tabBtn1" onclick="switchTab(1)" class="px-3.5 py-2 border-b-2 border-[#00A0E9] font-extrabold text-[#00A0E9] text-xs">湊十好朋友</button>
+                <button id="tabBtn2" onclick="switchTab(2)" class="px-3.5 py-2 border-b-2 border-transparent font-bold text-slate-400 text-xs hover:text-slate-600">聲音位值口訣</button>
+                <button id="tabBtn3" onclick="switchTab(3)" class="px-3.5 py-2 border-b-2 border-transparent font-bold text-slate-400 text-xs hover:text-slate-600">記憶麵包對照表</button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="overflow-y-auto py-3 flex-1 space-y-3 text-xs sm:text-sm">
+                <!-- Tab 1: Friend Multiplication -->
+                <div id="tabContent1" class="space-y-3">
+                    <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200">
+                        <h4 class="font-black text-amber-900 text-xs mb-1">💡 分數變小數：為什麼要湊十？</h4>
+                        <p class="text-slate-700 leading-relaxed text-xs">小數是十進位數。只要把分數的分母擴分變成 $10$、$100$、$1000$，就能輕鬆寫成小數！</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+                            <span class="text-[10px] font-bold text-sky-600 block">10 的好朋友</span>
+                            <div class="text-sm font-black text-sky-900 my-1">2 × 5 = 10</div>
+                            <span class="text-[10px] text-slate-500 block">1/2 = 5/10 = 0.5</span>
+                        </div>
+                        <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 text-center">
+                            <span class="text-[10px] font-bold text-emerald-600 block">100 的好朋友</span>
+                            <div class="text-sm font-black text-emerald-900 my-1">4 × 25 = 100</div>
+                            <span class="text-[10px] text-slate-500 block">1/4 = 25/100 = 0.25</span>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-2xl border border-purple-200 text-center">
+                            <span class="text-[10px] font-bold text-purple-600 block">1000 的好朋友</span>
+                            <div class="text-sm font-black text-purple-900 my-1">8 × 125 = 1000</div>
+                            <span class="text-[10px] text-slate-500 block">1/8 = 125/1000 = 0.125</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Position Reading -->
+                <div id="tabContent2" class="hidden space-y-2">
+                    <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200">
+                        <h4 class="font-black text-sky-900 text-xs mb-1">📢 口訣：「讀得出來，就寫得出來！」</h4>
+                        <p class="text-slate-700 text-xs">小數變分數時，禁止唸「點」，請大聲唸出真正的位值：</p>
+                    </div>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span>$0.3$ 唸作<strong>「十分之三」</strong></span>
+                            <span class="font-bold text-sky-600">→ 寫成 3/10</span>
+                        </li>
+                        <li class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span>$0.07$ 唸作<strong>「百分之七」</strong></span>
+                            <span class="font-bold text-sky-600">→ 寫成 7/100</span>
+                        </li>
+                        <li class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span>$0.25$ 唸作<strong>「百分之二十五」</strong></span>
+                            <span class="font-bold text-sky-600">→ 25/100 約分為 1/4</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tab 3: Table -->
+                <div id="tabContent3" class="hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 border-b">
+                                    <th class="p-2 font-black">小數</th>
+                                    <th class="p-2 font-black">擴分過程</th>
+                                    <th class="p-2 font-black">最簡分數</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.5</td><td>5/10</td><td class="p-1.5 font-black">1/2</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.25</td><td>25/100</td><td class="p-1.5 font-black">1/4</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.75</td><td>75/100</td><td class="p-1.5 font-black">3/4</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.2</td><td>2/10</td><td class="p-1.5 font-black">1/5</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.4</td><td>4/10</td><td class="p-1.5 font-black">2/5</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.6</td><td>6/10</td><td class="p-1.5 font-black">3/5</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.8</td><td>8/10</td><td class="p-1.5 font-black">4/5</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.125</td><td>125/1000</td><td class="p-1.5 font-black">1/8</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.375</td><td>375/1000</td><td class="p-1.5 font-black">3/8</td></tr>
+                                <tr><td class="p-1.5 font-bold text-sky-600">0.1</td><td>1/10</td><td class="p-1.5 font-black">1/10</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeKnowledgeModal()" class="w-full mt-3 py-2.5 bg-slate-800 text-white font-bold rounded-2xl text-xs flex-shrink-0">
+                了解，回到對對碰遊戲
+            </button>
+        </div>
+    </div>
+
+    <!-- Victory Screen (Nobita 100 Score Test Paper) -->
+    <div id="winModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border-4 border-[#FFDF00] relative overflow-hidden">
+            <canvas id="confettiCanvas" class="absolute inset-0 pointer-events-none"></canvas>
+
+            <!-- 100 Points Test Paper Graphic -->
+            <div class="w-32 h-36 bg-amber-50 border-2 border-slate-300 rounded-xl mx-auto shadow-md relative p-2.5 flex flex-col justify-between mb-3 transform rotate-1">
+                <div class="flex justify-between items-start border-b border-slate-200 pb-1">
+                    <div class="text-[10px] font-bold text-slate-500 text-left">
+                        <div>姓名：野比大雄</div>
+                        <div>科目：小數分數互化</div>
+                    </div>
+                    <!-- 100 Score Stamp -->
+                    <div class="w-12 h-12 rounded-full border-4 border-rose-600 text-rose-600 font-black text-xl flex items-center justify-center transform -rotate-12 bg-white/80 shadow-sm">
+                        100
+                    </div>
+                </div>
+                <div class="space-y-1 text-left text-[9px] text-slate-400">
+                    <div>✓ 0.5 = 1/2</div>
+                    <div>✓ 0.25 = 1/4</div>
+                    <div>✓ 0.75 = 3/4</div>
+                </div>
+                <div class="text-right text-[10px] font-bold text-emerald-600">全對完美！💯</div>
+            </div>
+
+            <h2 class="text-xl font-black text-slate-800 mb-1">太棒了！大雄考了 100 分！</h2>
+            <p class="text-xs font-bold text-slate-500 mb-3">哆啦A夢的記憶麵包幫助大雄戰勝數學考卷！</p>
+
+            <div id="winStars" class="flex justify-center space-x-2 text-2xl text-amber-400 mb-3">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <div id="winStatsSummary" class="bg-slate-50 rounded-2xl p-3 mb-4 space-y-1 text-xs text-slate-700 border border-slate-200">
+                <!-- Injected -->
+            </div>
+
+            <button onclick="closeWinModal(); initGame();" class="ipad-btn w-full py-3 bg-[#00A0E9] hover:bg-sky-600 text-white font-black rounded-2xl shadow-lg text-sm">
+                再考一次 100 分 <i class="fa-solid fa-rotate-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Doraemon Math Pairs Repository
+        const PAIRS_DATABASE = [
+            {
+                id: 1,
+                decimal: "0.5",
+                fraction: { num: 1, den: 2 },
+                readout: "十分之五",
+                speechDec: "0.5，等於二分之一",
+                decSteps: [
+                    "0.5 是一為小數，讀作「十分之五」。",
+                    "寫成分數：5/10。",
+                    "約分：分子與分母同時除以 5 → 1/2。"
+                ],
+                fracSteps: [
+                    "分母 2 的好朋友是 5 (2 × 5 = 10)。",
+                    "擴分：(1×5) / (2×5) = 5/10。",
+                    "化為小數：5/10 = 0.5。"
+                ]
+            },
+            {
+                id: 2,
+                decimal: "0.25",
+                fraction: { num: 1, den: 4 },
+                readout: "百分之二十五",
+                speechDec: "0.25，等於四分之一",
+                decSteps: [
+                    "0.25 是兩位小數，讀作「百分之二十五」。",
+                    "寫成分數：25/100。",
+                    "約分：分子與分母同時除以 25 → 1/4。"
+                ],
+                fracSteps: [
+                    "分母 4 的好朋友是 25 (4 × 25 = 100)。",
+                    "擴分：(1×25) / (4×25) = 25/100。",
+                    "化為小數：25/100 = 0.25。"
+                ]
+            },
+            {
+                id: 3,
+                decimal: "0.75",
+                fraction: { num: 3, den: 4 },
+                readout: "百分之七十五",
+                speechDec: "0.75，等於四分之三",
+                decSteps: [
+                    "0.75 讀作「百分之七十五」。",
+                    "寫成分數：75/100。",
+                    "約分：同除以 25 → 3/4。"
+                ],
+                fracSteps: [
+                    "分母 4 的好朋友是 25 (4 × 25 = 100)。",
+                    "擴分：(3×25) / (4×25) = 75/100。",
+                    "化為小數：75/100 = 0.75。"
+                ]
+            },
+            {
+                id: 4,
+                decimal: "0.2",
+                fraction: { num: 1, den: 5 },
+                readout: "十分之二",
+                speechDec: "0.2，等於五分之一",
+                decSteps: [
+                    "0.2 讀作「十分之二」。",
+                    "寫成分數：2/10。",
+                    "約分：同除以 2 → 1/5。"
+                ],
+                fracSteps: [
+                    "分母 5 的好朋友是 2 (5 × 2 = 10)。",
+                    "擴分：(1×2) / (5×2) = 2/10。",
+                    "化為小數：2/10 = 0.2。"
+                ]
+            },
+            {
+                id: 5,
+                decimal: "0.4",
+                fraction: { num: 2, den: 5 },
+                readout: "十分之四",
+                speechDec: "0.4，等於五分之二",
+                decSteps: [
+                    "0.4 讀作「十分之四」。",
+                    "寫成分數：4/10。",
+                    "約分：同除以 2 → 2/5。"
+                ],
+                fracSteps: [
+                    "分母 5 的好朋友是 2 (5 × 2 = 10)。",
+                    "擴分：(2×2) / (5×2) = 4/10。",
+                    "化為小數：4/10 = 0.4。"
+                ]
+            },
+            {
+                id: 6,
+                decimal: "0.6",
+                fraction: { num: 3, den: 5 },
+                readout: "十分之六",
+                speechDec: "0.6，等於五分之三",
+                decSteps: [
+                    "0.6 讀作「十分之六」。",
+                    "寫成分數：6/10。",
+                    "約分：同除以 2 → 3/5。"
+                ],
+                fracSteps: [
+                    "分母 5 的好朋友是 2 (5 × 2 = 10)。",
+                    "擴分：(3×2) / (5×2) = 6/10。",
+                    "化為小數：6/10 = 0.6。"
+                ]
+            },
+            {
+                id: 7,
+                decimal: "0.8",
+                fraction: { num: 4, den: 5 },
+                readout: "十分之八",
+                speechDec: "0.8，等於五分之四",
+                decSteps: [
+                    "0.8 讀作「十分之八」。",
+                    "寫成分數：8/10。",
+                    "約分：同除以 2 → 4/5。"
+                ],
+                fracSteps: [
+                    "分母 5 的好朋友是 2 (5 × 2 = 10)。",
+                    "擴分：(4×2) / (5×2) = 8/10。",
+                    "化為小數：8/10 = 0.8。"
+                ]
+            },
+            {
+                id: 8,
+                decimal: "0.125",
+                fraction: { num: 1, den: 8 },
+                readout: "千分之零一百二十五",
+                speechDec: "0.125，等於八分之一",
+                decSteps: [
+                    "0.125 是三位小數，讀作「千分之125」。",
+                    "寫成分數：125/1000。",
+                    "約分：同除以 125 → 1/8。"
+                ],
+                fracSteps: [
+                    "分母 8 的好朋友是 125 (8 × 125 = 1000)。",
+                    "擴分：(1×125) / (8×125) = 125/1000。",
+                    "化為小數：125/1000 = 0.125。"
+                ]
+            },
+            {
+                id: 9,
+                decimal: "0.375",
+                fraction: { num: 3, den: 8 },
+                readout: "千分之三百七十五",
+                speechDec: "0.375，等於八分之三",
+                decSteps: [
+                    "0.375 讀作「千分之375」。",
+                    "寫成分數：375/1000。",
+                    "約分：同除以 125 → 3/8。"
+                ],
+                fracSteps: [
+                    "分母 8 的好朋友是 125 (8 × 125 = 1000)。",
+                    "擴分：(3×125) / (8×125) = 375/1000。",
+                    "化為小數：375/1000 = 0.375。"
+                ]
+            },
+            {
+                id: 10,
+                decimal: "0.1",
+                fraction: { num: 1, den: 10 },
+                readout: "十分之一",
+                speechDec: "0.1，等於十分之一",
+                decSteps: [
+                    "0.1 讀作「十分之一」。",
+                    "寫成分數：1/10。"
+                ],
+                fracSteps: [
+                    "分母是 10，直接化為小數：1/10 = 0.1。"
+                ]
+            }
+        ];
+
+        // Global State Variables
+        let difficulty = 'easy'; // 'easy'(4), 'medium'(6), 'hard'(8)
+        let totalPairs = 4;
+        let cards = [];
+        let flippedCards = [];
+        let matchedCount = 0;
+        let moves = 0;
+        let combo = 0;
+        let lockBoard = false;
+        let currentMatchData = null;
+
+        // Gadgets Stock
+        let peekStock = 2;
+        let shuffleStock = 1;
+
+        // Timer State
+        let timerSeconds = 0;
+        let timerInterval = null;
+
+        // Audio & Speech Synthesis (Web Audio API for iOS)
+        let audioEnabled = true;
+        let speechEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // iOS Touch unlock listener
+        function unlockAudio() {
+            initAudio();
+        }
+        window.addEventListener('touchstart', unlockAudio, { once: false, passive: true });
+        window.addEventListener('pointerdown', unlockAudio, { once: false, passive: true });
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'flip') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(380, now);
+                osc.frequency.exponentialRampToValueAtTime(760, now + 0.08);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'gadget') {
+                [440, 554.37, 659.25, 880].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.05);
+                    gain.gain.setValueAtTime(0.12, now + i * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.22);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.05);
+                    osc.stop(now + i * 0.05 + 0.22);
+                });
+            } else if (type === 'match') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.07);
+                    gain.gain.setValueAtTime(0.15, now + i * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.28);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.07);
+                    osc.stop(now + i * 0.07 + 0.28);
+                });
+            } else if (type === 'mismatch') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.22);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.22);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            } else if (type === 'win') {
+                [523.25, 659.25, 783.99, 880, 1046.50].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.1);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.1);
+                    osc.stop(now + i * 0.1 + 0.4);
+                });
+            }
+        }
+
+        function speakText(text) {
+            if (!speechEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW';
+            utterance.rate = 0.95;
+            utterance.pitch = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const soundIcon = document.getElementById('soundIcon');
+            soundIcon.className = audioEnabled ? 'fa-solid fa-volume-high text-base' : 'fa-solid fa-volume-xmark text-base';
+        }
+
+        function toggleSpeech() {
+            speechEnabled = !speechEnabled;
+            const statusText = document.getElementById('speechStatusText');
+            const icon = document.getElementById('speechIcon');
+            if (speechEnabled) {
+                statusText.textContent = '語音朗讀: 開';
+                icon.className = 'fa-solid fa-comment-dots text-amber-200';
+                speakText("語音朗讀功能已開啟");
+            } else {
+                statusText.textContent = '語音朗讀: 關';
+                icon.className = 'fa-solid fa-comment-slash text-slate-300';
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function setDifficulty(diff) {
+            difficulty = diff;
+            const easyBtn = document.getElementById('diffEasy');
+            const medBtn = document.getElementById('diffMedium');
+            const hardBtn = document.getElementById('diffHard');
+
+            [easyBtn, medBtn, hardBtn].forEach(b => b.className = 'ipad-btn px-3 py-1.5 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900');
+
+            if (diff === 'easy') {
+                totalPairs = 4;
+                easyBtn.className = 'ipad-btn px-3 py-1.5 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm';
+                updateCharacter('哆啦A夢', '🤖', '初級關卡：跟大雄一起複習基礎配對吧！');
+            } else if (diff === 'medium') {
+                totalPairs = 6;
+                medBtn.className = 'ipad-btn px-3 py-1.5 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm';
+                updateCharacter('靜香', '👧', '標準關卡：靜香讚賞你的細心計算！');
+            } else {
+                totalPairs = 8;
+                hardBtn.className = 'ipad-btn px-3 py-1.5 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm';
+                updateCharacter('出木杉', '👦', '挑戰關卡：出木杉出題！考驗速度與準確度！');
+            }
+            initGame();
+        }
+
+        function updateCharacter(name, avatar, dialog) {
+            document.getElementById('characterName').textContent = name;
+            document.getElementById('characterAvatar').textContent = avatar;
+            updateDoraTalk(dialog);
+        }
+
+        function initGame() {
+            moves = 0;
+            matchedCount = 0;
+            combo = 0;
+            flippedCards = [];
+            lockBoard = false;
+            peekStock = 2;
+            shuffleStock = 1;
+
+            document.getElementById('movesText').textContent = moves;
+            document.getElementById('scoreText').textContent = `0 / ${totalPairs}`;
+            document.getElementById('peekCountTag').textContent = `${peekStock} 次`;
+            document.getElementById('shuffleCountTag').textContent = `${shuffleStock} 次`;
+            document.getElementById('comboBadge').classList.add('hidden');
+
+            closeMismatchBanner();
+
+            // Timer Reset
+            clearInterval(timerInterval);
+            timerSeconds = 0;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+
+            // Select random pairs
+            const shuffledDB = [...PAIRS_DATABASE].sort(() => 0.5 - Math.random());
+            const selectedPairs = shuffledDB.slice(0, totalPairs);
+
+            let cardDeck = [];
+            selectedPairs.forEach(pair => {
+                cardDeck.push({ pairId: pair.id, type: 'decimal', val: pair.decimal, data: pair });
+                cardDeck.push({ pairId: pair.id, type: 'fraction', val: pair.fraction, data: pair });
+            });
+
+            cards = cardDeck.sort(() => 0.5 - Math.random());
+            renderCardGrid();
+            speakText("記憶麵包對對碰遊戲開始！");
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const secs = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timerText').textContent = `${mins}:${secs}`;
+        }
+
+        function updateDoraTalk(text) {
+            document.getElementById('doraTalk').textContent = `「${text}」`;
+        }
+
+        function renderCardGrid() {
+            const grid = document.getElementById('cardGrid');
+            grid.innerHTML = '';
+
+            let gridCols = 'grid-cols-4 max-w-2xl';
+            if (cards.length === 8) gridCols = 'grid-cols-4 max-w-xl';
+            if (cards.length === 12) gridCols = 'grid-cols-3 sm:grid-cols-4 max-w-2xl';
+            if (cards.length === 16) gridCols = 'grid-cols-4 max-w-3xl';
+
+            grid.className = `w-full grid gap-3 sm:gap-4 justify-center my-auto transition-all duration-300 ${gridCols}`;
+
+            cards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card perspective-1000 aspect-[3/4] cursor-pointer min-h-[110px] sm:min-h-[135px]';
+                cardEl.dataset.index = index;
+
+                let contentHtml = '';
+                if (card.type === 'decimal') {
+                    contentHtml = `
+                        <span class="text-[10px] sm:text-xs font-black text-amber-900 uppercase tracking-wider mb-1 bg-amber-200/80 px-2 py-0.5 rounded-full">小數</span>
+                        <span class="text-2xl sm:text-3xl font-black toasted-text">${card.val}</span>
+                    `;
+                } else {
+                    contentHtml = `
+                        <span class="text-[10px] sm:text-xs font-black text-amber-900 uppercase tracking-wider mb-1 bg-amber-200/80 px-2 py-0.5 rounded-full">分數</span>
+                        <div class="fraction text-xl sm:text-2xl font-black toasted-text">
+                            <span class="numerator">${card.val.num}</span>
+                            <span class="denominator">${card.val.den}</span>
+                        </div>
+                    `;
+                }
+
+                cardEl.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="w-11 h-11 rounded-full border-2 border-amber-300/80 bg-amber-400/30 flex items-center justify-center">
+                                <i class="fa-solid fa-bell text-amber-300 text-xl"></i>
+                            </div>
+                            <span class="text-[11px] font-black text-amber-200 mt-1">記憶麵包</span>
+                        </div>
+                        <div class="card-back">
+                            ${contentHtml}
+                        </div>
+                    </div>
+                `;
+
+                // Single event listener supporting tap & click
+                cardEl.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    handleCardClick(cardEl, index);
+                });
+
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function handleCardClick(cardEl, index) {
+            if (lockBoard) return;
+            if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+
+            cardEl.classList.remove('hint-glow');
+            playSound('flip');
+            cardEl.classList.add('flipped');
+            flippedCards.push({ element: cardEl, data: cards[index] });
+
+            // Optional Voice Pronunciation on Tap
+            const cardData = cards[index];
+            if (cardData.type === 'decimal') {
+                speakText(`小數 ${cardData.val}`);
+            } else {
+                speakText(`分數 ${cardData.val.den}分之${cardData.val.num}`);
+            }
+
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('movesText').textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            lockBoard = true;
+            const [c1, c2] = flippedCards;
+            const isMatch = c1.data.pairId === c2.data.pairId;
+
+            if (isMatch) {
+                playSound('match');
+                c1.element.classList.add('matched');
+                c2.element.classList.add('matched');
+
+                matchedCount++;
+                combo++;
+                document.getElementById('scoreText').textContent = `${matchedCount} / ${totalPairs}`;
+
+                if (combo > 1) {
+                    const comboBadge = document.getElementById('comboBadge');
+                    document.getElementById('comboCount').textContent = combo;
+                    comboBadge.classList.remove('hidden');
+                }
+
+                currentMatchData = c1.data.data;
+                updateDoraTalk(`太棒了！找到了 ${currentMatchData.decimal} 等於 ${currentMatchData.fraction.num}/${currentMatchData.fraction.den}！`);
+                speakText(currentMatchData.speechDec);
+
+                setTimeout(() => {
+                    openSolutionModal(currentMatchData);
+                }, 450);
+
+                flippedCards = [];
+                lockBoard = false;
+
+                if (matchedCount === totalPairs) {
+                    setTimeout(() => handleWin(), 800);
+                }
+            } else {
+                playSound('mismatch');
+                combo = 0;
+                document.getElementById('comboBadge').classList.add('hidden');
+
+                c1.element.classList.add('shake');
+                c2.element.classList.add('shake');
+
+                showMismatchAnalysis(c1.data, c2.data);
+                updateDoraTalk("哎呀！這兩塊記憶麵包數值不同喔，再想想看！");
+
+                setTimeout(() => {
+                    c1.element.classList.remove('shake', 'flipped');
+                    c2.element.classList.remove('shake', 'flipped');
+                    flippedCards = [];
+                    lockBoard = false;
+                }, 1200);
+            }
+        }
+
+        function useGadgetPeek() {
+            if (lockBoard || peekStock <= 0) return;
+            peekStock--;
+            document.getElementById('peekCountTag').textContent = `${peekStock} 次`;
+            playSound('gadget');
+
+            updateDoraTalk("🍞 道具：記憶麵包發動！透視全場記憶麵包 2 秒！");
+            speakText("記憶麵包發動！");
+            lockBoard = true;
+
+            const allUnmatched = document.querySelectorAll('.card:not(.matched)');
+            allUnmatched.forEach(c => c.classList.add('flipped'));
+
+            setTimeout(() => {
+                allUnmatched.forEach(c => {
+                    if (!c.classList.contains('matched')) c.classList.remove('flipped');
+                });
+                lockBoard = false;
+            }, 2000);
+        }
+
+        function useGadgetShuffle() {
+            if (lockBoard || shuffleStock <= 0) return;
+            shuffleStock--;
+            document.getElementById('shuffleCountTag').textContent = `${shuffleStock} 次`;
+            playSound('gadget');
+
+            updateDoraTalk("🚪 道具：任意門！重新洗牌剩餘的記憶麵包！");
+            speakText("任意門洗牌！");
+
+            cards = cards.sort(() => 0.5 - Math.random());
+            renderCardGrid();
+        }
+
+        function useGadgetTime() {
+            if (timerSeconds < 15) timerSeconds = 0;
+            else timerSeconds -= 15;
+
+            playSound('gadget');
+            updateTimerDisplay();
+            updateDoraTalk("🚁 道具：竹蜻蜓加速！扣除 15 秒耗時！");
+            speakText("竹蜻蜓加速，扣除十五秒！");
+        }
+
+        function readAloudCurrentTip() {
+            playSound('gadget');
+            if (currentMatchData) {
+                speakText(`剛剛完成的題目是：${currentMatchData.speechDec}。讀作${currentMatchData.readout}。`);
+            } else {
+                speakText("請觸碰記憶麵包，配對對應的小數與分數！湊十好朋友口訣：2乘以5等於10，4乘以25等於100！");
+            }
+        }
+
+        function showMismatchAnalysis(c1, c2) {
+            const banner = document.getElementById('mismatchBanner');
+            const details = document.getElementById('mismatchDetails');
+
+            function getValText(card) {
+                return card.type === 'decimal' ? `小數 ${card.val}` : `分數 ${card.val.num}/${card.val.den}`;
+            }
+
+            function getEquivText(card) {
+                return card.type === 'decimal' ? `等於 ${card.data.fraction.num}/${card.data.fraction.den}` : `等於 ${card.data.decimal}`;
+            }
+
+            details.innerHTML = `
+                <div class="bg-white p-2 rounded-xl border border-rose-150 shadow-sm">
+                    <span class="font-bold text-rose-600">${getValText(c1)}：</span>
+                    <span class="text-slate-700">${getEquivText(c1)}</span>
+                </div>
+                <div class="bg-white p-2 rounded-xl border border-rose-150 shadow-sm">
+                    <span class="font-bold text-rose-600">${getValText(c2)}：</span>
+                    <span class="text-slate-700">${getEquivText(c2)}</span>
+                </div>
+            `;
+
+            banner.classList.remove('hidden');
+        }
+
+        function closeMismatchBanner() {
+            document.getElementById('mismatchBanner').classList.add('hidden');
+        }
+
+        function openSolutionModal(data) {
+            document.getElementById('modalDecimalVal').textContent = data.decimal;
+            document.getElementById('modalFractionVal').innerHTML = `
+                <div class="fraction text-amber-900">
+                    <span class="numerator">${data.fraction.num}</span>
+                    <span class="denominator">${data.fraction.den}</span>
+                </div>
+            `;
+
+            document.getElementById('stepDecToFrac').innerHTML = data.decSteps.map(s => `<li>• ${s}</li>`).join('');
+            document.getElementById('stepFracToDec').innerHTML = data.fracSteps.map(s => `<li>• ${s}</li>`).join('');
+
+            document.getElementById('solutionModal').classList.remove('hidden');
+        }
+
+        function speakSolutionModalContent() {
+            if (!currentMatchData) return;
+            const textToSpeak = `${currentMatchData.decimal} 等於 ${currentMatchData.fraction.den}分之${currentMatchData.fraction.num}。小數化分數：${currentMatchData.decSteps.join('，')}。分數化小數：${currentMatchData.fracSteps.join('，')}。`;
+            speakText(textToSpeak);
+        }
+
+        function closeSolutionModal() {
+            document.getElementById('solutionModal').classList.add('hidden');
+        }
+
+        function openKnowledgeModal() {
+            playSound('gadget');
+            document.getElementById('knowledgeModal').classList.remove('hidden');
+        }
+
+        function closeKnowledgeModal() {
+            document.getElementById('knowledgeModal').classList.add('hidden');
+        }
+
+        function switchTab(num) {
+            [1, 2, 3].forEach(i => {
+                document.getElementById(`tabContent${i}`).classList.add('hidden');
+                document.getElementById(`tabBtn${i}`).className = 'px-3.5 py-2 border-b-2 border-transparent font-bold text-slate-400 text-xs hover:text-slate-600';
+            });
+
+            document.getElementById(`tabContent${num}`).classList.remove('hidden');
+            document.getElementById(`tabBtn${num}`).className = 'px-3.5 py-2 border-b-2 border-[#00A0E9] font-extrabold text-[#00A0E9] text-xs';
+        }
+
+        function handleWin() {
+            clearInterval(timerInterval);
+            playSound('win');
+            speakText("太棒了！恭喜大雄考了一百分！全對完美通關！");
+
+            const winStatsSummary = document.getElementById('winStatsSummary');
+            winStatsSummary.innerHTML = `
+                <div class="flex justify-between"><span>完成時間：</span><strong class="text-sky-600">${document.getElementById('timerText').textContent}</strong></div>
+                <div class="flex justify-between"><span>翻牌次數：</span><strong class="text-indigo-600">${moves} 次</strong></div>
+                <div class="flex justify-between"><span>成績榮譽：</span><strong class="text-emerald-600">野比大雄 100 分滿分考卷</strong></div>
+            `;
+
+            document.getElementById('winModal').classList.remove('hidden');
+            triggerConfetti();
+        }
+
+        function closeWinModal() {
+            document.getElementById('winModal').classList.add('hidden');
+        }
+
+        function triggerConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const particles = [];
+            const colors = ['#00A0E9', '#E60012', '#FFDF00', '#10b981', '#8b5cf6'];
+
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.7) * 12,
+                    size: Math.random() * 6 + 3,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                particles.forEach(p => {
+                    if (p.alpha > 0) {
+                        alive = true;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.22;
+                        p.alpha -= 0.02;
+
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = Math.max(0, p.alpha);
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                if (alive) requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>
