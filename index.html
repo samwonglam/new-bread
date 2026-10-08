@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>哆啦A夢：記憶麵包小數分數對對碰 (無人聲純淨版)</title>
+    <title>哆啦A夢：記憶麵包小數分數對對碰 (iPad觸控優化版)</title>
     
     <!-- Tailwind CSS & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -125,4 +125,1061 @@
         }
 
         .fraction {
-            display
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 4px;
+        }
+        .fraction .numerator {
+            border-bottom: 2.5px solid currentColor;
+            padding-bottom: 1px;
+            line-height: 1;
+        }
+        .fraction .denominator {
+            padding-top: 1px;
+            line-height: 1;
+        }
+
+        .ipad-btn {
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+        .ipad-btn:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body class="flex flex-col h-full text-slate-800 overflow-hidden">
+
+    <!-- Header Navigation -->
+    <header class="bg-[#00A0E9] text-white shadow-md sticky top-0 z-30 border-b-4 border-[#E60012] flex-shrink-0">
+        <div class="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
+            
+            <div class="flex items-center space-x-3">
+                <div class="relative w-10 h-10 bg-white rounded-full border-2 border-slate-900 flex items-center justify-center shadow flex-shrink-0">
+                    <div class="w-8 h-8 bg-[#00A0E9] rounded-full relative overflow-hidden flex items-center justify-center">
+                        <div class="w-7 h-6 bg-white rounded-t-full absolute bottom-0"></div>
+                        <div class="w-2.5 h-2.5 bg-[#E60012] rounded-full absolute top-2"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h1 class="text-base sm:text-xl font-black tracking-wide text-white drop-shadow">
+                        哆啦A夢：記憶麵包對對碰
+                    </h1>
+                    <p class="text-[10px] sm:text-xs font-bold text-amber-200">小數與分數互化．iPad 觸控優化版</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Knowledge Base Button -->
+                <button onclick="openKnowledgeModal()" class="ipad-btn px-3 bg-[#FFDF00] hover:bg-amber-300 text-slate-900 font-extrabold text-xs sm:text-sm rounded-2xl shadow flex items-center space-x-1.5 border border-amber-500">
+                    <i class="fa-solid fa-book-bookmark text-rose-600"></i>
+                    <span>祕訣庫</span>
+                </button>
+
+                <!-- Audio FX Toggle -->
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="ipad-btn px-3 rounded-2xl bg-white/20 hover:bg-white/30 text-white transition-colors border border-white/30 flex items-center justify-center">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="h-2 bg-[#E60012] w-full relative">
+            <div class="absolute left-1/2 -translate-x-1/2 -top-1.5 w-6 h-6 bg-[#FFDF00] border-2 border-slate-900 rounded-full flex items-center justify-center shadow">
+                <div class="w-2 h-0.5 bg-slate-900"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-3 py-2.5 flex-1 flex flex-col items-center w-full overflow-y-auto">
+
+        <!-- Dialogue Bubble -->
+        <div class="w-full bg-white/95 rounded-2xl p-2.5 shadow border-2 border-[#00A0E9] flex items-center space-x-3 mb-2.5 flex-shrink-0">
+            <div class="w-10 h-10 rounded-full bg-[#00A0E9] text-white font-black flex items-center justify-center text-xl flex-shrink-0 shadow">
+                🤖
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2 mb-0.5">
+                    <span class="text-xs font-black text-[#00A0E9]">哆啦A夢</span>
+                    <span class="text-[10px] bg-sky-100 text-sky-800 px-1.5 py-0.2 rounded font-bold">數學特訓</span>
+                </div>
+                <p id="doraTalk" class="text-xs sm:text-sm font-black text-slate-700 truncate">
+                    「大雄加油！觸碰翻開記憶麵包，將相等的小數和分數湊成一對！」
+                </p>
+            </div>
+            <div id="comboBadge" class="hidden px-2.5 py-1 bg-gradient-to-r from-amber-400 to-rose-500 text-white font-black rounded-full text-xs shadow animate-bounce flex-shrink-0">
+                COMBO x<span id="comboCount">1</span>!
+            </div>
+        </div>
+
+        <!-- Four-Dimension Secret Gadgets -->
+        <div class="w-full bg-white/90 backdrop-blur rounded-2xl p-2 shadow border border-sky-200 mb-2.5 flex-shrink-0">
+            <div class="text-[11px] font-black text-sky-800 mb-1 flex items-center justify-between px-1">
+                <span class="flex items-center"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1.5"></i> 四次元神奇道具：</span>
+                <span class="text-[10px] text-slate-400 font-bold">無聲音效干擾</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+                <!-- Gadget 1: Peek -->
+                <button id="gadgetPeekBtn" onclick="useGadgetPeek()" class="ipad-btn p-1.5 rounded-2xl bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm">
+                    <span class="text-lg">🍞</span>
+                    <span class="font-extrabold text-[11px] text-amber-900 mt-0.5">記憶麵包</span>
+                    <span id="peekCountTag" class="text-[9px] bg-amber-200 text-amber-900 px-1.5 rounded-full font-black">2 次</span>
+                </button>
+
+                <!-- Gadget 2: Shuffle -->
+                <button id="gadgetShuffleBtn" onclick="useGadgetShuffle()" class="ipad-btn p-1.5 rounded-2xl bg-rose-50 hover:bg-rose-100 border-2 border-rose-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm">
+                    <span class="text-lg">🚪</span>
+                    <span class="font-extrabold text-[11px] text-rose-900 mt-0.5">任意門洗牌</span>
+                    <span id="shuffleCountTag" class="text-[9px] bg-rose-200 text-rose-900 px-1.5 rounded-full font-black">1 次</span>
+                </button>
+
+                <!-- Gadget 3: Time Boost -->
+                <button id="gadgetTimeBtn" onclick="useGadgetTime()" class="ipad-btn p-1.5 rounded-2xl bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm">
+                    <span class="text-lg">🚁</span>
+                    <span class="font-extrabold text-[11px] text-sky-900 mt-0.5">竹蜻蜓減時</span>
+                    <span class="text-[9px] bg-sky-200 text-sky-900 px-1.5 rounded-full font-black">-15秒</span>
+                </button>
+
+                <!-- Gadget 4: Hint Magnifier -->
+                <button id="gadgetHintBtn" onclick="useGadgetHint()" class="ipad-btn p-1.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-300 text-slate-800 font-bold text-xs flex flex-col items-center justify-center transition-all shadow-sm">
+                    <span class="text-lg">🔍</span>
+                    <span class="font-extrabold text-[11px] text-emerald-900 mt-0.5">透視放大鏡</span>
+                    <span id="hintCountTag" class="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 rounded-full font-black">2 次</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Control & Metrics Bar -->
+        <div class="w-full bg-white rounded-2xl p-2.5 shadow border border-sky-100 mb-2.5 flex flex-wrap gap-2 items-center justify-between flex-shrink-0">
+            <div class="flex bg-slate-100 p-1 rounded-2xl">
+                <button id="diffEasy" onclick="setDifficulty('easy')" class="ipad-btn px-3 py-1 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm">
+                    基礎 (4對)
+                </button>
+                <button id="diffMedium" onclick="setDifficulty('medium')" class="ipad-btn px-3 py-1 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900">
+                    標準 (6對)
+                </button>
+                <button id="diffHard" onclick="setDifficulty('hard')" class="ipad-btn px-3 py-1 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900">
+                    挑戰 (8對)
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-3 text-xs sm:text-sm font-black">
+                <div class="flex items-center text-sky-700">
+                    <i class="fa-regular fa-clock mr-1 text-sky-500"></i>
+                    <span id="timerText">00:00</span>
+                </div>
+                <div class="flex items-center text-indigo-700">
+                    <i class="fa-solid fa-hand-pointer mr-1 text-indigo-500"></i>
+                    <span id="movesText">0</span> 次
+                </div>
+                <div class="flex items-center text-emerald-700">
+                    <i class="fa-solid fa-cubes mr-1 text-emerald-500"></i>
+                    <span id="scoreText">0 / 4</span>
+                </div>
+            </div>
+
+            <button onclick="initGame()" class="ipad-btn px-3 py-1.5 bg-[#E60012] hover:bg-red-600 text-white font-extrabold rounded-2xl text-xs shadow flex items-center space-x-1">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>重來</span>
+            </button>
+        </div>
+
+        <!-- Interactive Memory Bread Card Grid -->
+        <div id="cardGrid" class="w-full grid gap-2.5 justify-center my-auto transition-all duration-300">
+            <!-- Dynamic Cards -->
+        </div>
+
+        <!-- Mismatch Analysis Alert Banner -->
+        <div id="mismatchBanner" class="w-full mt-2.5 bg-rose-50 border-2 border-rose-300 rounded-2xl p-2.5 hidden transition-all shadow flex-shrink-0">
+            <div class="flex items-start space-x-2.5">
+                <div class="w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-black text-rose-800 text-xs">配對未成立！對照參考：</h4>
+                        <button onclick="closeMismatchBanner()" class="text-xs font-bold text-rose-400 hover:text-rose-700 px-1">✕</button>
+                    </div>
+                    <div id="mismatchDetails" class="grid sm:grid-cols-2 gap-1.5 mt-1 text-xs text-slate-700">
+                        <!-- Dynamic mismatch details -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Step-by-step Solution Modal -->
+    <div id="solutionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border-4 border-[#00A0E9] relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">💡</span>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">雙向推導解析</h3>
+                        <p class="text-xs font-bold text-sky-600">記憶麵包完美配對！</p>
+                    </div>
+                </div>
+                <button onclick="closeSolutionModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold text-sm">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Matched Value Showcase -->
+            <div class="my-3 bg-amber-50 rounded-2xl p-3 border-2 border-amber-300 flex items-center justify-around shadow-inner">
+                <div class="text-center">
+                    <div class="text-[11px] font-bold text-amber-800">小數卡</div>
+                    <div id="modalDecimalVal" class="text-2xl font-black text-slate-800 mt-0.5 toasted-text">0.75</div>
+                </div>
+                <div class="text-2xl font-black text-amber-500">=</div>
+                <div class="text-center">
+                    <div class="text-[11px] font-bold text-amber-800">分數卡</div>
+                    <div id="modalFractionVal" class="text-xl font-black text-slate-800 mt-0.5 toasted-text">
+                        <!-- Fraction injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Explanations -->
+            <div class="space-y-2.5 text-xs">
+                <div class="bg-sky-50 rounded-2xl p-3 border border-sky-200">
+                    <h4 class="font-black text-sky-900 flex items-center mb-1">
+                        <span class="w-4 h-4 rounded-full bg-[#00A0E9] text-white flex items-center justify-center text-[10px] mr-1.5">1</span>
+                        【小數 轉 分數】位值與約分
+                    </h4>
+                    <ul id="stepDecToFrac" class="space-y-1 text-slate-700 font-medium pl-1">
+                        <!-- Injected -->
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 rounded-2xl p-3 border border-amber-200">
+                    <h4 class="font-black text-amber-900 flex items-center mb-1">
+                        <span class="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] mr-1.5">2</span>
+                        【分數 轉 小數】湊十擴分法
+                    </h4>
+                    <ul id="stepFracToDec" class="space-y-1 text-slate-700 font-medium pl-1">
+                        <!-- Injected -->
+                    </ul>
+                </div>
+            </div>
+
+            <button onclick="closeSolutionModal()" class="w-full mt-4 py-2.5 bg-[#00A0E9] hover:bg-sky-600 text-white font-extrabold rounded-2xl shadow transition-all text-xs sm:text-sm">
+                記住惹！繼續挑戰 🍞
+            </button>
+        </div>
+    </div>
+
+    <!-- Knowledge Base Cheat-Sheet Modal -->
+    <div id="knowledgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border-4 border-[#FFDF00] relative max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">🤖</span>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">解題秘訣庫</h3>
+                        <p class="text-xs font-bold text-amber-600">掌握「湊十好朋友」，小數分數秒破解！</p>
+                    </div>
+                </div>
+                <button onclick="closeKnowledgeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold text-sm">
+                    ✕
+                </button>
+            </div>
+
+            <div class="flex border-b border-slate-100 mt-2 flex-shrink-0">
+                <button id="tabBtn1" onclick="switchTab(1)" class="px-3 py-1.5 border-b-2 border-[#00A0E9] font-extrabold text-[#00A0E9] text-xs">湊十好朋友</button>
+                <button id="tabBtn2" onclick="switchTab(2)" class="px-3 py-1.5 border-b-2 border-transparent font-bold text-slate-400 text-xs hover:text-slate-600">位值口訣</button>
+                <button id="tabBtn3" onclick="switchTab(3)" class="px-3 py-1.5 border-b-2 border-transparent font-bold text-slate-400 text-xs hover:text-slate-600">記憶麵包表</button>
+            </div>
+
+            <div class="overflow-y-auto py-2.5 flex-1 space-y-2.5 text-xs">
+                <div id="tabContent1" class="space-y-2.5">
+                    <div class="bg-amber-50 p-2.5 rounded-2xl border border-amber-200">
+                        <h4 class="font-black text-amber-900 mb-0.5">💡 分數變小數：為什麼要湊十？</h4>
+                        <p class="text-slate-700 leading-relaxed text-[11px]">小數是十進位數。只要把分數的分母擴分變成 10、100、1000，就能輕鬆寫成小數！</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-sky-50 p-2.5 rounded-2xl border border-sky-200 text-center">
+                            <span class="text-[9px] font-bold text-sky-600 block">10 的好朋友</span>
+                            <div class="text-xs font-black text-sky-900 my-1">2 × 5 = 10</div>
+                            <span class="text-[9px] text-slate-500 block">1/2 = 0.5</span>
+                        </div>
+                        <div class="bg-emerald-50 p-2.5 rounded-2xl border border-emerald-200 text-center">
+                            <span class="text-[9px] font-bold text-emerald-600 block">100 的好朋友</span>
+                            <div class="text-xs font-black text-emerald-900 my-1">4 × 25 = 100</div>
+                            <span class="text-[9px] text-slate-500 block">1/4 = 0.25</span>
+                        </div>
+                        <div class="bg-purple-50 p-2.5 rounded-2xl border border-purple-200 text-center">
+                            <span class="text-[9px] font-bold text-purple-600 block">1000 的好朋友</span>
+                            <div class="text-xs font-black text-purple-900 my-1">8 × 125 = 1000</div>
+                            <span class="text-[9px] text-slate-500 block">1/8 = 0.125</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabContent2" class="hidden space-y-2">
+                    <div class="bg-sky-50 p-2.5 rounded-2xl border border-sky-200">
+                        <h4 class="font-black text-sky-900 mb-0.5">📢 口訣：「讀得出來，就寫得出來！」</h4>
+                        <p class="text-slate-700 text-[11px]">小數變分數時，大聲唸出真正的位值：</p>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-slate-700">
+                        <li class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span>0.3 唸作<strong>「十分之三」</strong></span>
+                            <span class="font-bold text-sky-600">→ 3/10</span>
+                        </li>
+                        <li class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span>0.07 唸作<strong>「百分之七」</strong></span>
+                            <span class="font-bold text-sky-600">→ 7/100</span>
+                        </li>
+                        <li class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span>0.25 唸作<strong>「百分之二十五」</strong></span>
+                            <span class="font-bold text-sky-600">→ 約分為 1/4</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="tabContent3" class="hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 border-b">
+                                    <th class="p-1.5 font-black">小數</th>
+                                    <th class="p-1.5 font-black">擴分過程</th>
+                                    <th class="p-1.5 font-black">最簡分數</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr><td class="p-1 font-bold text-sky-600">0.5</td><td>5/10</td><td class="p-1 font-black">1/2</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.25</td><td>25/100</td><td class="p-1 font-black">1/4</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.75</td><td>75/100</td><td class="p-1 font-black">3/4</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.2</td><td>2/10</td><td class="p-1 font-black">1/5</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.4</td><td>4/10</td><td class="p-1 font-black">2/5</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.6</td><td>6/10</td><td class="p-1 font-black">3/5</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.8</td><td>8/10</td><td class="p-1 font-black">4/5</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.125</td><td>125/1000</td><td class="p-1 font-black">1/8</td></tr>
+                                <tr><td class="p-1 font-bold text-sky-600">0.375</td><td>375/1000</td><td class="p-1 font-black">3/8</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeKnowledgeModal()" class="w-full mt-2.5 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs flex-shrink-0">
+                回到遊戲
+            </button>
+        </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="winModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 max-w-sm w-full text-center shadow-2xl border-4 border-[#FFDF00] relative overflow-hidden">
+            <canvas id="confettiCanvas" class="absolute inset-0 pointer-events-none"></canvas>
+
+            <div class="w-28 h-32 bg-amber-50 border-2 border-slate-300 rounded-xl mx-auto shadow-sm relative p-2 flex flex-col justify-between mb-2.5 transform rotate-1">
+                <div class="flex justify-between items-start border-b border-slate-200 pb-1">
+                    <div class="text-[9px] font-bold text-slate-500 text-left">
+                        <div>姓名：野比大雄</div>
+                        <div>科目：小數分數互化</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full border-2 border-rose-600 text-rose-600 font-black text-lg flex items-center justify-center transform -rotate-12 bg-white/80">
+                        100
+                    </div>
+                </div>
+                <div class="space-y-0.5 text-left text-[8px] text-slate-400">
+                    <div>✓ 0.5 = 1/2</div>
+                    <div>✓ 0.25 = 1/4</div>
+                    <div>✓ 0.75 = 3/4</div>
+                </div>
+                <div class="text-right text-[9px] font-bold text-emerald-600">全對完美！💯</div>
+            </div>
+
+            <h2 class="text-lg font-black text-slate-800 mb-0.5">太棒了！大雄考了 100 分！</h2>
+            <p class="text-xs font-bold text-slate-500 mb-2.5">記憶麵包發揮功效！成功破解所有題目！</p>
+
+            <div id="winStatsSummary" class="bg-slate-50 rounded-2xl p-2.5 mb-3 space-y-1 text-xs text-slate-700 border border-slate-200">
+                <!-- Injected -->
+            </div>
+
+            <button onclick="closeWinModal(); initGame();" class="ipad-btn w-full py-2.5 bg-[#00A0E9] hover:bg-sky-600 text-white font-black rounded-2xl shadow transition-all text-xs sm:text-sm flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>再玩一次特訓！</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Logic Engine -->
+    <script>
+        const PAIRS_DATA = [
+            {
+                id: "p1",
+                decimal: "0.5",
+                fractionNum: 1,
+                fractionDen: 2,
+                fractionText: "1/2",
+                decToFrac: [
+                    "0.5 的位值在十分位，寫成分數是 5/10。",
+                    "分子分母同除以 5 約分，得到最簡分數 1/2！"
+                ],
+                fracToDec: [
+                    "觀察分母 2，尋找 10 的好朋友：2 × 5 = 10。",
+                    "擴分：(1×5) / (2×5) = 5/10 = 0.5！"
+                ]
+            },
+            {
+                id: "p2",
+                decimal: "0.25",
+                fractionNum: 1,
+                fractionDen: 4,
+                fractionText: "1/4",
+                decToFrac: [
+                    "0.25 位在百分位，寫成分數是 25/100。",
+                    "分子分母同除以 25 約分，得到 1/4！"
+                ],
+                fracToDec: [
+                    "觀察分母 4，尋找 100 的好朋友：4 × 25 = 100。",
+                    "擴分：(1×25) / (4×25) = 25/100 = 0.25！"
+                ]
+            },
+            {
+                id: "p3",
+                decimal: "0.75",
+                fractionNum: 3,
+                fractionDen: 4,
+                fractionText: "3/4",
+                decToFrac: [
+                    "0.75 位在百分位，寫成分數是 75/100。",
+                    "分子分母同除以 25 約分，得到 3/4！"
+                ],
+                fracToDec: [
+                    "觀察分母 4，尋找 100 的好朋友：4 × 25 = 100。",
+                    "擴分：(3×25) / (4×25) = 75/100 = 0.75！"
+                ]
+            },
+            {
+                id: "p4",
+                decimal: "0.2",
+                fractionNum: 1,
+                fractionDen: 5,
+                fractionText: "1/5",
+                decToFrac: [
+                    "0.2 位在十分位，寫成分數是 2/10。",
+                    "分子分母同除以 2 約分，得到 1/5！"
+                ],
+                fracToDec: [
+                    "觀察分母 5，尋找 10 的好朋友：5 × 2 = 10。",
+                    "擴分：(1×2) / (5×2) = 2/10 = 0.2！"
+                ]
+            },
+            {
+                id: "p5",
+                decimal: "0.4",
+                fractionNum: 2,
+                fractionDen: 5,
+                fractionText: "2/5",
+                decToFrac: [
+                    "0.4 位在十分位，寫成分數是 4/10。",
+                    "分子分母同除以 2 約分，得到 2/5！"
+                ],
+                fracToDec: [
+                    "觀察分母 5，尋找 10 的好朋友：5 × 2 = 10。",
+                    "擴分：(2×2) / (5×2) = 4/10 = 0.4！"
+                ]
+            },
+            {
+                id: "p6",
+                decimal: "0.6",
+                fractionNum: 3,
+                fractionDen: 5,
+                fractionText: "3/5",
+                decToFrac: [
+                    "0.6 位在十分位，寫成分數是 6/10。",
+                    "分子分母同除以 2 約分，得到 3/5！"
+                ],
+                fracToDec: [
+                    "觀察分母 5，尋找 10 的好朋友：5 × 2 = 10。",
+                    "擴分：(3×2) / (5×2) = 6/10 = 0.6！"
+                ]
+            },
+            {
+                id: "p7",
+                decimal: "0.8",
+                fractionNum: 4,
+                fractionDen: 5,
+                fractionText: "4/5",
+                decToFrac: [
+                    "0.8 位在十分位，寫成分數是 8/10。",
+                    "分子分母同除以 2 約分，得到 4/5！"
+                ],
+                fracToDec: [
+                    "觀察分母 5，尋找 10 的好朋友：5 × 2 = 10。",
+                    "擴分：(4×2) / (5×2) = 8/10 = 0.8！"
+                ]
+            },
+            {
+                id: "p8",
+                decimal: "0.125",
+                fractionNum: 1,
+                fractionDen: 8,
+                fractionText: "1/8",
+                decToFrac: [
+                    "0.125 位在千分位，寫成分數是 125/1000。",
+                    "分子分母同除以 125 約分，得到 1/8！"
+                ],
+                fracToDec: [
+                    "觀察分母 8，尋找 1000 的好朋友：8 × 125 = 1000。",
+                    "擴分：(1×125) / (8×125) = 125/1000 = 0.125！"
+                ]
+            },
+            {
+                id: "p9",
+                decimal: "0.375",
+                fractionNum: 3,
+                fractionDen: 8,
+                fractionText: "3/8",
+                decToFrac: [
+                    "0.375 位在千分位，寫成分數是 375/1000。",
+                    "分子分母同除以 125 約分，得到 3/8！"
+                ],
+                fracToDec: [
+                    "觀察分母 8，尋找 1000 的好朋友：8 × 125 = 1000。",
+                    "擴分：(3×125) / (8×125) = 375/1000 = 0.375！"
+                ]
+            }
+        ];
+
+        // Global Game States
+        let difficulty = 'easy';
+        let cardsList = [];
+        let flippedCards = [];
+        let matchedCount = 0;
+        let totalPairs = 4;
+        let moves = 0;
+        let combo = 0;
+        let timerSeconds = 0;
+        let timerTimer = null;
+        let isBoardLocked = false;
+        let soundEnabled = true;
+
+        // Gadget usage counts
+        let peekCount = 2;
+        let shuffleCount = 1;
+        let hintCount = 2;
+
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+
+                if (type === 'flip') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(280, now);
+                    osc.frequency.exponentialRampToValueAtTime(560, now + 0.07);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.07);
+                } else if (type === 'match') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.07 + 0.2);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.07);
+                        osc.stop(now + idx * 0.07 + 0.2);
+                    });
+                } else if (type === 'mismatch') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(140, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0.25, now + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.35);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.35);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        function initGame() {
+            clearInterval(timerTimer);
+            timerSeconds = 0;
+            moves = 0;
+            matchedCount = 0;
+            combo = 0;
+            flippedCards = [];
+            isBoardLocked = false;
+            
+            peekCount = 2;
+            shuffleCount = 1;
+            hintCount = 2;
+
+            updateDashboardUI();
+            resetGadgetButtons();
+            closeMismatchBanner();
+
+            if (difficulty === 'easy') totalPairs = 4;
+            else if (difficulty === 'medium') totalPairs = 6;
+            else if (difficulty === 'hard') totalPairs = 8;
+
+            const shuffledData = [...PAIRS_DATA].sort(() => 0.5 - Math.random());
+            const selectedPairs = shuffledData.slice(0, totalPairs);
+
+            cardsList = [];
+            selectedPairs.forEach((item, index) => {
+                cardsList.push({
+                    cardId: `c_${index}_dec`,
+                    pairId: item.id,
+                    type: 'decimal',
+                    val: item.decimal,
+                    data: item,
+                    isMatched: false
+                });
+                cardsList.push({
+                    cardId: `c_${index}_frac`,
+                    pairId: item.id,
+                    type: 'fraction',
+                    val: item.fractionText,
+                    data: item,
+                    isMatched: false
+                });
+            });
+
+            cardsList.sort(() => 0.5 - Math.random());
+            renderCardGrid();
+
+            timerTimer = setInterval(() => {
+                timerSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+
+            setDoraTalk("「大雄加油！觸碰翻開記憶麵包，將相等的小數和分數湊成一對！」");
+        }
+
+        function renderCardGrid() {
+            const grid = document.getElementById('cardGrid');
+            grid.innerHTML = '';
+
+            if (cardsList.length <= 8) {
+                grid.className = "w-full grid grid-cols-4 gap-2.5 max-w-xl my-auto transition-all";
+            } else if (cardsList.length <= 12) {
+                grid.className = "w-full grid grid-cols-4 gap-2 max-w-2xl my-auto transition-all";
+            } else {
+                grid.className = "w-full grid grid-cols-4 sm:grid-cols-4 gap-2 max-w-3xl my-auto transition-all";
+            }
+
+            cardsList.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.id = card.cardId;
+                cardEl.className = `card h-24 sm:h-28 md:h-32 w-full perspective-1000 cursor-pointer ${card.isMatched ? 'matched flipped' : ''}`;
+                cardEl.onclick = () => handleCardClick(card, cardEl);
+
+                let backContent = card.type === 'decimal' 
+                    ? `<span class="toasted-text text-xl sm:text-2xl font-black">${card.val}</span>`
+                    : `<div class="fraction toasted-text font-black text-lg sm:text-xl">
+                            <span class="numerator">${card.data.fractionNum}</span>
+                            <span class="denominator">${card.data.fractionDen}</span>
+                       </div>`;
+
+                cardEl.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="w-7 h-7 rounded-full bg-[#FFDF00] border-2 border-white flex items-center justify-center text-slate-800 shadow-sm">
+                                <i class="fa-solid fa-bell text-amber-900 text-xs"></i>
+                            </div>
+                            <span class="text-[9px] font-black text-sky-100 mt-1">記憶麵包</span>
+                        </div>
+                        <div class="card-back">
+                            ${backContent}
+                            <span class="text-[8px] font-bold text-amber-800/60 absolute bottom-1">${card.type === 'decimal' ? '小數卡' : '分數卡'}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function handleCardClick(card, cardEl) {
+            if (isBoardLocked || card.isMatched || cardEl.classList.contains('flipped')) return;
+
+            playSound('flip');
+            cardEl.classList.add('flipped');
+            flippedCards.push({ card, el: cardEl });
+
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('movesText').innerText = moves;
+                isBoardLocked = true;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [c1, c2] = flippedCards;
+            const isMatch = (c1.card.pairId === c2.card.pairId) && (c1.card.type !== c2.card.type);
+
+            if (isMatch) {
+                playSound('match');
+                c1.card.isMatched = true;
+                c2.card.isMatched = true;
+                c1.el.classList.add('matched');
+                c2.el.classList.add('matched');
+
+                matchedCount++;
+                combo++;
+
+                updateDashboardUI();
+                showComboBadge();
+
+                setDoraTalk(`「太棒了！${c1.card.data.decimal} 正好等於 ${c1.card.data.fractionText}！完美配對！」`);
+
+                setTimeout(() => {
+                    openSolutionModal(c1.card.data);
+                    flippedCards = [];
+                    isBoardLocked = false;
+
+                    if (matchedCount === totalPairs) {
+                        handleWin();
+                    }
+                }, 500);
+
+            } else {
+                playSound('mismatch');
+                combo = 0;
+                hideComboBadge();
+
+                c1.el.classList.add('shake');
+                c2.el.classList.add('shake');
+
+                displayMismatchBanner(c1.card, c2.card);
+                setDoraTalk("「不太對喔！再對照『湊十好朋友』試一次！」");
+
+                setTimeout(() => {
+                    c1.el.classList.remove('shake', 'flipped');
+                    c2.el.classList.remove('shake', 'flipped');
+                    flippedCards = [];
+                    isBoardLocked = false;
+                }, 1100);
+            }
+        }
+
+        function displayMismatchBanner(c1, c2) {
+            const banner = document.getElementById('mismatchBanner');
+            const details = document.getElementById('mismatchDetails');
+
+            let txt1 = c1.type === 'decimal' 
+                ? `小數卡 <strong>${c1.val}</strong> (對應分數 ${c1.data.fractionText})`
+                : `分數卡 <strong>${c1.val}</strong> (對應小數 ${c1.data.decimal})`;
+
+            let txt2 = c2.type === 'decimal' 
+                ? `小數卡 <strong>${c2.val}</strong> (對應分數 ${c2.data.fractionText})`
+                : `分數卡 <strong>${c2.val}</strong> (對應小數 ${c2.data.decimal})`;
+
+            details.innerHTML = `
+                <div class="bg-white p-1.5 rounded-xl border border-rose-200">卡片 1：${txt1}</div>
+                <div class="bg-white p-1.5 rounded-xl border border-rose-200">卡片 2：${txt2}</div>
+            `;
+            banner.classList.remove('hidden');
+        }
+
+        function closeMismatchBanner() {
+            document.getElementById('mismatchBanner').classList.add('hidden');
+        }
+
+        function openSolutionModal(pairData) {
+            document.getElementById('modalDecimalVal').innerText = pairData.decimal;
+            document.getElementById('modalFractionVal').innerHTML = `
+                <div class="fraction toasted-text font-black text-xl sm:text-2xl">
+                    <span class="numerator">${pairData.fractionNum}</span>
+                    <span class="denominator">${pairData.fractionDen}</span>
+                </div>
+            `;
+
+            document.getElementById('stepDecToFrac').innerHTML = pairData.decToFrac.map(step => `<li>• ${step}</li>`).join('');
+            document.getElementById('stepFracToDec').innerHTML = pairData.fracToDec.map(step => `<li>• ${step}</li>`).join('');
+
+            document.getElementById('solutionModal').classList.remove('hidden');
+        }
+
+        function closeSolutionModal() {
+            document.getElementById('solutionModal').classList.add('hidden');
+        }
+
+        function handleWin() {
+            clearInterval(timerTimer);
+            playSound('win');
+
+            const winModal = document.getElementById('winModal');
+            const summary = document.getElementById('winStatsSummary');
+
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            const timeStr = `${minutes > 0 ? minutes + '分' : ''}${seconds}秒`;
+
+            summary.innerHTML = `
+                <div class="flex justify-between font-bold"><span>難度模式：</span><span class="text-sky-600">${difficulty === 'easy' ? '基礎 4 對' : difficulty === 'medium' ? '標準 6 對' : '挑戰 8 對'}</span></div>
+                <div class="flex justify-between font-bold"><span>翻牌次數：</span><span class="text-indigo-600">${moves} 次</span></div>
+                <div class="flex justify-between font-bold"><span>總共耗時：</span><span class="text-emerald-600">${timeStr}</span></div>
+            `;
+
+            winModal.classList.remove('hidden');
+            launchConfetti();
+        }
+
+        function closeWinModal() {
+            document.getElementById('winModal').classList.add('hidden');
+        }
+
+        function launchConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const particles = [];
+            const colors = ['#00A0E9', '#E60012', '#FFDF00', '#10B981', '#F59E0B'];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 5 + 3,
+                    d: Math.random() * 8,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.random() * 10 - 10,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+                    tiltAngle: 0
+                });
+            }
+
+            let frames = 0;
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                    p.tilt = Math.sin(p.tiltAngle) * 12;
+
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                });
+                frames++;
+                if (frames < 140) requestAnimationFrame(loop);
+            }
+            loop();
+        }
+
+        // Gadget 1: Peek
+        function useGadgetPeek() {
+            if (peekCount <= 0 || isBoardLocked) return;
+            peekCount--;
+            document.getElementById('peekCountTag').innerText = `${peekCount} 次`;
+            if (peekCount === 0) document.getElementById('gadgetPeekBtn').classList.add('opacity-40');
+
+            isBoardLocked = true;
+            playSound('flip');
+
+            const unmatchedEls = cardsList.filter(c => !c.isMatched).map(c => document.getElementById(c.cardId));
+            unmatchedEls.forEach(el => el.classList.add('flipped'));
+
+            setDoraTalk("「記憶麵包透視眼啟動！快看 1.8 秒！」");
+
+            setTimeout(() => {
+                unmatchedEls.forEach(el => el.classList.remove('flipped'));
+                isBoardLocked = false;
+            }, 1800);
+        }
+
+        // Gadget 2: Shuffle
+        function useGadgetShuffle() {
+            if (shuffleCount <= 0 || isBoardLocked) return;
+            shuffleCount--;
+            document.getElementById('shuffleCountTag').innerText = `${shuffleCount} 次`;
+            document.getElementById('gadgetShuffleBtn').classList.add('opacity-40');
+
+            playSound('flip');
+
+            const unmatched = cardsList.filter(c => !c.isMatched);
+            const matched = cardsList.filter(c => c.isMatched);
+
+            unmatched.sort(() => 0.5 - Math.random());
+            cardsList = [...matched, ...unmatched];
+
+            renderCardGrid();
+            setDoraTalk("「穿越任意門！卡片位置重新打亂！」");
+        }
+
+        // Gadget 3: Time
+        function useGadgetTime() {
+            timerSeconds = Math.max(0, timerSeconds - 15);
+            updateTimerDisplay();
+            playSound('match');
+            setDoraTalk("「戴上竹蜻蜓！時間倒退 15 秒！」");
+        }
+
+        // Gadget 4: Hint Magnifier (New Feature)
+        function useGadgetHint() {
+            if (hintCount <= 0 || isBoardLocked) return;
+
+            const unmatchedPairs = {};
+            cardsList.filter(c => !c.isMatched).forEach(c => {
+                if (!unmatchedPairs[c.pairId]) unmatchedPairs[c.pairId] = [];
+                unmatchedPairs[c.pairId].push(c);
+            });
+
+            const pairKeys = Object.keys(unmatchedPairs);
+            if (pairKeys.length === 0) return;
+
+            hintCount--;
+            document.getElementById('hintCountTag').innerText = `${hintCount} 次`;
+            if (hintCount === 0) document.getElementById('gadgetHintBtn').classList.add('opacity-40');
+
+            playSound('flip');
+
+            // Pick first unmatched pair and make them glow
+            const targetPair = unmatchedPairs[pairKeys[0]];
+            targetPair.forEach(item => {
+                const el = document.getElementById(item.cardId);
+                if (el) el.classList.add('hint-glow');
+            });
+
+            setDoraTalk("「透視放大鏡高亮顯示了一組配對卡片！」");
+
+            setTimeout(() => {
+                targetPair.forEach(item => {
+                    const el = document.getElementById(item.cardId);
+                    if (el) el.classList.remove('hint-glow');
+                });
+            }, 1500);
+        }
+
+        function resetGadgetButtons() {
+            document.getElementById('peekCountTag').innerText = `${peekCount} 次`;
+            document.getElementById('shuffleCountTag').innerText = `${shuffleCount} 次`;
+            document.getElementById('hintCountTag').innerText = `${hintCount} 次`;
+            document.getElementById('gadgetPeekBtn').classList.remove('opacity-40');
+            document.getElementById('gadgetShuffleBtn').classList.remove('opacity-40');
+            document.getElementById('gadgetHintBtn').classList.remove('opacity-40');
+        }
+
+        function setDifficulty(mode) {
+            difficulty = mode;
+            document.getElementById('diffEasy').className = mode === 'easy' ? "ipad-btn px-3 py-1 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm" : "ipad-btn px-3 py-1 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900";
+            document.getElementById('diffMedium').className = mode === 'medium' ? "ipad-btn px-3 py-1 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm" : "ipad-btn px-3 py-1 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900";
+            document.getElementById('diffHard').className = mode === 'hard' ? "ipad-btn px-3 py-1 rounded-xl text-xs font-black bg-[#00A0E9] text-white shadow-sm" : "ipad-btn px-3 py-1 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900";
+
+            initGame();
+        }
+
+        function updateDashboardUI() {
+            document.getElementById('movesText').innerText = moves;
+            document.getElementById('scoreText').innerText = `${matchedCount} / ${totalPairs}`;
+        }
+
+        function updateTimerDisplay() {
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timerText').innerText = `${m}:${s}`;
+        }
+
+        function setDoraTalk(msg) {
+            document.getElementById('doraTalk').innerText = msg;
+        }
+
+        function showComboBadge() {
+            if (combo > 1) {
+                const badge = document.getElementById('comboBadge');
+                document.getElementById('comboCount').innerText = combo;
+                badge.classList.remove('hidden');
+            }
+        }
+
+        function hideComboBadge() {
+            document.getElementById('comboBadge').classList.add('hidden');
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                icon.className = "fa-solid fa-volume-high text-sm text-white";
+                playSound('flip');
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-sm text-rose-300";
+            }
+        }
+
+        function openKnowledgeModal() {
+            document.getElementById('knowledgeModal').classList.remove('hidden');
+        }
+
+        function closeKnowledgeModal() {
+            document.getElementById('knowledgeModal').classList.add('hidden');
+        }
+
+        function switchTab(tabNum) {
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`tabBtn${i}`);
+                const content = document.getElementById(`tabContent${i}`);
+                if (i === tabNum) {
+                    btn.className = "px-3 py-1.5 border-b-2 border-[#00A0E9] font-extrabold text-[#00A0E9] text-xs";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "px-3 py-1.5 border-b-2 border-transparent font-bold text-slate-400 text-xs hover:text-slate-600";
+                    content.classList.add('hidden');
+                }
+            }
+        }
+
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
